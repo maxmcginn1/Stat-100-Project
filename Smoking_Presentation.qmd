@@ -7,7 +7,7 @@ editor: visual
 
 ## Introduction
 
-We will be analyzing different smoking trends in the UK based on different points like:
+We are trying to see how smoking habits differ in people. We will be analyzing different smoking trends in the UK based on different points like:
 
 -   Demographics
 
@@ -25,13 +25,48 @@ library(ggplot2)
 # Load the dataset
 data <- read.csv("smoking.csv")
 
-# Create the bar plot for Smoking Status
-plot <- ggplot(data, aes(x = smoke, fill = smoke)) +
-  geom_bar() +
-  labs(title = "Smoking Status Distribution", x = "Smoking Status (Yes/No)", y = "Count") +
+# Calculate proportions
+data_prop <- as.data.frame(table(data$smoke))
+colnames(data_prop) <- c("smoke", "count")
+data_prop$percent <- data_prop$count / sum(data_prop$count)
+
+# Create the bar plot with percentages
+plot <- ggplot(data_prop, aes(x = smoke, y = percent, fill = smoke)) +
+  geom_bar(stat = "identity") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(title = "Smoking Status Distribution", x = "Smoking Status (Yes/No)", y = "Percentage") +
   theme_minimal() +
   theme(legend.position = "none")
 
 # Print the plot
 print(plot)
+
 ```
+
+## Smoking by Gender
+
+```{r}
+library(ggplot2)
+
+# Bar plot showing percentage of smokers/non-smokers by gender
+ggplot(data, aes(x = gender, fill = smoke)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(
+    title = "Smoking Status by Gender (Percentage)",
+    x = "Gender",
+    y = "Percentage",
+    fill = "Smoker"
+  ) +
+  theme_minimal()
+```
+
+**/Age/**
+
+Min-16 / Max- 97 Q1-34 Median-48/ Mean-49.84 Q3- 65
+
+**/Amount on Weekends/ /Amount of Weekdays/**
+
+Q1- 10 Median- 15 Q3- 20 Q1-7 Median- 12 Q3- 20
+
+Mean= 16.41 Mean= 13.75
