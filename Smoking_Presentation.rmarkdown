@@ -63,156 +63,33 @@ ggplot(data, aes(x = gender, fill = smoke)) +
 
 ## Smoking Stats
 
-**/Age/**
-
-Min-16 Max-97 Q1-34 Q3-65 Median-48 Mean-49.84
-
-**/Amount on Weekends/ /Amount of Weekdays/**
-
-Q1- 10 Median- 15 Q3- 20
-
-Q1-7 Median- 12 Q3- 20
-
-Mean of weekends= 16.41 Mean of weekdays= 13.75
-
-## Smoking Map Visualization
-
 ```{r}
-library(tidyverse)
-library(sf)
-library(tmap)
+# Load necessary library
+library(tibble)
 
-# Load smoking dataset
-smoking <- read_csv("smoking.csv") %>%
-  mutate(
-    amt_weekdays = as.numeric(amt_weekdays),
-    amt_weekends = as.numeric(amt_weekends)
-  ) %>%
-  group_by(region) %>%
-  summarise(
-    avg_weekdays = mean(amt_weekdays, na.rm = TRUE),
-    avg_weekends = mean(amt_weekends, na.rm = TRUE)
-  )
-
-# Load UK NUTS level 1 shapefile
-uk_map <- st_read("NUTS_Level_1_January_2018_FEB_in_the_United_Kingdom.shp")
-
-# Mapping detailed NUTS names to simplified region names
-region_mapping <- tibble(
-  nuts118nm = c(
-    "North East (England)", "North West (England)", "Yorkshire and The Humber",
-    "East Midlands (England)", "West Midlands (England)", "East of England",
-    "London", "South East (England)", "South West (England)",
-    "Wales", "Scotland"
-  ),
-  region = c(
-    "The North", "The North", "The North",
-    "Midlands & East Anglia", "Midlands & East Anglia", "Midlands & East Anglia",
-    "London", "South East", "South West", "Wales", "Scotland"
-  )
+# Create the summary table
+smoking_stats <- tribble(
+  ~Category,             ~Statistic,         ~Value,
+  "Age",                 "Min",              16,
+  "Age",                 "Max",              97,
+  "Age",                 "Q1",               34,
+  "Age",                 "Q3",               65,
+  "Age",                 "Median",           48,
+  "Age",                 "Mean",             49.84,
+  "Weekends Amount",     "Q1",               10,
+  "Weekends Amount",     "Median",           15,
+  "Weekends Amount",     "Q3",               20,
+  "Weekends Amount",     "Mean",             16.41,
+  "Weekdays Amount",     "Q1",               7,
+  "Weekdays Amount",     "Median",           12,
+  "Weekdays Amount",     "Q3",               20,
+  "Weekdays Amount",     "Mean",             13.75
 )
 
-# Merge and aggregate geometries
-uk_map_clean <- uk_map %>%
-  left_join(region_mapping, by = "nuts118nm") %>%
-  group_by(region) %>%
-  summarise(geometry = st_union(geometry), .groups = "drop")
-
-# Join with cigarette consumption data
-map_data <- uk_map_clean %>%
-  left_join(smoking, by = "region")
-
-# Plot both weekday and weekend heatmaps
-tmap_mode("plot")
-
-tm1 <- tm_shape(map_data) +
-  tm_polygons("avg_weekdays", palette = "Blues", title = "Avg Cigarettes (Weekdays)") +
-  tm_layout(title = "Weekday Smoking by Region", legend.outside = TRUE)
-
-tm2 <- tm_shape(map_data) +
-  tm_polygons("avg_weekends", palette = "Reds", title = "Avg Cigarettes (Weekends)") +
-  tm_layout(title = "Weekend Smoking by Region", legend.outside = TRUE)
-
-# Show maps
-tmap_arrange(tm1, tm2)
-```
-
----
-title: "Smoking Trends in UK"
-author: "Khush Dakwala and Max McGinn"
-format: revealjs
-editor: visual
----
-
-## Introduction
-
-We are trying to see how smoking habits differ in people. We will be analyzing different smoking trends in the UK based on different points like:
-
--   Demographics
-
--   Smoking Status (Yes/No)
-
--   Amount smoked on Weekends and Weekdays
-
--   Type of Smoking
-
-## Smoking Status Distribution in the UK
-
-```{r}
-library(ggplot2)
-
-# Load the dataset
-data <- read.csv("smoking.csv")
-
-# Calculate proportions
-data_prop <- as.data.frame(table(data$smoke))
-colnames(data_prop) <- c("smoke", "count")
-data_prop$percent <- data_prop$count / sum(data_prop$count)
-
-# Create the bar plot with percentages
-plot <- ggplot(data_prop, aes(x = smoke, y = percent, fill = smoke)) +
-  geom_bar(stat = "identity") +
-  scale_y_continuous(labels = scales::percent_format()) +
-  labs(title = "Smoking Status Distribution", x = "Smoking Status (Yes/No)", y = "Percentage") +
-  theme_minimal() +
-  theme(legend.position = "none")
-
-# Print the plot
-print(plot)
+# View the table
+print(smoking_stats)
 
 ```
-
-## Smoking by Gender
-
-```{r}
-library(ggplot2)
-
-# Bar plot showing percentage of smokers/non-smokers by gender
-ggplot(data, aes(x = gender, fill = smoke)) +
-  geom_bar(position = "fill") +
-  scale_y_continuous(labels = scales::percent_format()) +
-  labs(
-    title = "Smoking Status by Gender (Percentage)",
-    x = "Gender",
-    y = "Percentage",
-    fill = "Smoker"
-  ) +
-  theme_minimal()
-```
-
-## Smoking Stats
-
-**/Age/**
-
-Min-16 Max-97 Q1-34 Q3-65 Median-48 Mean-49.84
-
-**/Amount on Weekends/ /Amount of Weekdays/**
-
-Q1- 10 Median- 15 Q3- 20
-
-Q1-7 Median- 12 Q3- 20
-
-Mean of weekends= 16.41 Mean of weekdays= 13.75
 
 ## Smoking Map Visualization
 
